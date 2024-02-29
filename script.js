@@ -1,61 +1,61 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Selecting elements
-    const video = document.querySelector('.player__video');
-    const progress = document.querySelector('.progress');
-    const progressBar = document.querySelector('.progress__filled');
-    const toggleButton = document.querySelector('.player__button');
-    const volumeSlider = document.querySelector('input[name="volume"]');
-    const playbackSpeedSlider = document.querySelector('input[name="playbackRate"]');
-    const skipButtons = document.querySelectorAll('[data-skip]');
+const inputs = document.querySelectorAll('.controls input');
 
-    // Functions
-    function togglePlay() {
-        if (video.paused) {
-            video.play();
-        } else {
-            video.pause();
-        }
+    function handleUpdate() {
+      const suffix = this.dataset.sizing || '';
+      document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix);
     }
 
-    function updateButton() {
-        const icon = video.paused ? '►' : '❚ ❚';
-        toggleButton.textContent = icon;
-    }
+    inputs.forEach(input => input.addEventListener('change', handleUpdate));
+    inputs.forEach(input => input.addEventListener('mousemove', handleUpdate));
 
-    function skip() {
-        video.currentTime += parseFloat(this.dataset.skip);
-    }
 
-    function handleRangeUpdate() {
-        video[this.name] = this.value;
-    }
+   const video = document.querySelector('.flex');
+const progress = document.querySelector('.progress__filled');
+const playButton = document.querySelector('.player__button');
+const volumeRange = document.querySelector('[name="volume"]');
+const playbackSpeed = document.querySelector('[name="playbackRate"]');
+const skipButtons = document.querySelectorAll('[data-skip]');
+const backwardButton = document.querySelector('.backward');
+const forwardButton = document.querySelector('.forward');
 
-    function handleProgress() {
-        const percent = (video.currentTime / video.duration) * 100;
-        progressBar.style.flexBasis = `${percent}%`;
-    }
+function togglePlay() {
+  if (video.paused) {
+    video.play();
+    playButton.textContent = '❚ ❚';
+  } else {
+    video.pause();
+    playButton.textContent = '►';
+  }
+}
 
-    function scrub(e) {
-        const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
-        video.currentTime = scrubTime;
-    }
+function updateProgressBar() {
+  const percent = (video.currentTime / video.duration) * 100;
+  progress.style.flexBasis = `${percent}%`;
+}
 
-    // Event listeners
-    video.addEventListener('click', togglePlay);
-    video.addEventListener('play', updateButton);
-    video.addEventListener('pause', updateButton);
-    video.addEventListener('timeupdate', handleProgress);
+function handleRangeUpdate() {
+  video[this.name] = this.value;
+}
 
-    toggleButton.addEventListener('click', togglePlay);
+function skip() {
+  video.currentTime += parseFloat(this.dataset.skip);
+}
 
-    volumeSlider.addEventListener('input', handleRangeUpdate);
-    playbackSpeedSlider.addEventListener('input', handleRangeUpdate);
+function backward() {
+  video.currentTime -= 10;
+}
 
-    skipButtons.forEach(button => button.addEventListener('click', skip));
+function forward() {
+  video.currentTime += 25;
+}
 
-    let mousedown = false;
-    progress.addEventListener('click', scrub);
-    progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
-    progress.addEventListener('mousedown', () => mousedown = true);
-    progress.addEventListener('mouseup', () => mousedown = false);
-});
+video.addEventListener('click', togglePlay);
+playButton.addEventListener('click', togglePlay);
+video.addEventListener('timeupdate', updateProgressBar);
+volumeRange.addEventListener('change', handleRangeUpdate);
+volumeRange.addEventListener('mousemove', handleRangeUpdate);
+playbackSpeed.addEventListener('change', handleRangeUpdate);
+playbackSpeed.addEventListener('mousemove', handleRangeUpdate);
+skipButtons.forEach(button => button.addEventListener('click', skip));
+backwardButton.addEventListener('click', backward);
+forwardButton.addEventListener('click', forward);
